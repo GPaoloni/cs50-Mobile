@@ -6,79 +6,103 @@ const classNames = {
 }
 
 const list = document.getElementById('todo-list')
-const items = list.getElementsByTagName("li")
 const itemCountSpan = document.getElementById('item-count')
 const uncheckedCountSpan = document.getElementById('unchecked-count')
 
-class TodoItem  {
-  constructor(id, description) {
-    this._id = id
-    this.checked = false
-    this.description = description
-  }
-
-  check() {
-    if (!this.checked) {
-      this.checked = true
-      let unchecked = parseInt(uncheckedCountSpan.innerHTML)
-      uncheckedCountSpan.innerHTML = unchecked - 1
-    }
-    
-  }
-
-  get id() {
-    return this._id
-  }
-}
-
-class TodoList {
-  constructor() {
-    this._todoList = {}
-  }
-
-  add(todo) {
-    this._todoList[todo.id] = todo
-  }
-
-  get(id) {
-    return this._todoList[id]
-  }
-}
-
-const todoList = new TodoList
-
-
 
 function newTodo() {
-  //get description
+  //get task description
   let description = prompt('Enter the TODO description', 'newTodo')
   if (description === null) {
     return;
   }
-  //create new TodoItem
-  let id = itemCountSpan.innerHTML
-  todo = new TodoItem(id, description)
-  //add it to the TodoList
-  todoList.add(todo)
-  updateDocument(todo)
+
+  increaseCount()
+
+  updateDocument(description)
+
   //succes
-  alert('New TODO created successfully! ID: ' + todo.id)
+  alert('New TODO created successfully!')
 }
 
-function updateDocument(todo) {
-    //update counters
-  let itemCount = parseInt(todo.id)
-  itemCountSpan.innerHTML = itemCount + 1
-  let uncheckedCount = parseInt(uncheckedCountSpan.innerHTML)
-  uncheckedCountSpan.innerHTML = uncheckedCount + 1
-  //update list item in html
-  let node = document.createElement("li")
-  let checkbox = document.createElement('input')
-    checkbox.type = "checkbox"
-  let textnode = document.createTextNode(todo.description)
-  node.appendChild(checkbox)
-  node.appendChild(textnode)
+//Adds the new item to the document (HTML)
+function updateDocument(description) {
+  let node = buildListItem()
+    node.appendChild(buildCheckbox())
+    node.appendChild(buildDescription(description))
+    node.appendChild(buildButton())
   list.appendChild(node)
 }
 
+//HTML elements builders 
+function buildListItem() {
+  let node = document.createElement("li")
+    node.style.backgroundColor = '#FF5722'
+    node.className = classNames.TODO_ITEM
+  return node
+}
 
+function buildCheckbox() {
+  let checkbox = document.createElement('input')
+    checkbox.type = "checkbox"
+    checkbox.className = classNames.TODO_CHECKBOX
+    checkbox.addEventListener('click', function() {handleCheck(this)})
+    return checkbox
+}
+
+function buildDescription(description) {
+  let textnode = document.createTextNode(description)
+    textnode.className = classNames.TODO_TEXT
+  return textnode
+}
+
+function buildButton() {
+  let button = document.createElement('button')
+    button.className = classNames.TODO_DELETE
+    button.textContent = 'Delete'
+    button.addEventListener('click', function() {handleDelete(this)})
+  return button
+}
+
+//Counters controllers
+function increaseCount() {
+  let itemCount = parseInt(itemCountSpan.innerHTML)
+  itemCountSpan.innerHTML = itemCount + 1
+  increaseUnchecked()
+}
+
+function decreaseCount() {
+  let itemCount = parseInt(itemCountSpan.innerHTML)
+  itemCountSpan.innerHTML = itemCount - 1
+}
+
+function increaseUnchecked() {
+    //update counters
+    let uncheckedCount = parseInt(uncheckedCountSpan.innerHTML)
+    uncheckedCountSpan.innerHTML = uncheckedCount + 1
+}
+
+function decreaseUnchecked() {
+  let uncheckedCount = parseInt(uncheckedCountSpan.innerHTML)
+  uncheckedCountSpan.innerHTML = uncheckedCount - 1
+}
+
+//Events handlers
+function handleCheck(e) {
+  if (e.checked) {
+    e.parentElement.style.backgroundColor = '#4CAF50'
+    decreaseUnchecked()
+  } else {
+    e.parentElement.style.backgroundColor = '#FF5722'
+    increaseUnchecked()
+  }
+}
+
+function handleDelete(e) {
+  if (!e.parentElement.getElementsByClassName(classNames.TODO_CHECKBOX).item(0).checked) {
+    decreaseUnchecked()
+  }
+  decreaseCount()
+  //hide the whole list item
+  e.parentElement.style.display = 'none'
+}
