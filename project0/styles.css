@@ -50,6 +50,7 @@ ul {
 
 .todo-delete {
   margin: 10px;
+  float: right;
 }
 
 .todo-checkbox {
@@ -57,7 +58,7 @@ ul {
 }
 
 .todo-container {
-  padding: 20px;
+  padding: 7px;
   border-bottom: 1px solid #333;
 }
 
